@@ -1119,14 +1119,116 @@ html[lang="ar"] .hero-role {
 
 
     
-    body {
-  cursor: url('images/custom-cursor-small4.png') 8 8, auto;
+
+/* المؤشر*/
+
+html,
+body,
+a,
+button,
+input,
+textarea,
+select,
+[role="button"],
+.clickable {
+  cursor: none !important;
 }
 
-a, button, .clickable {
-  cursor: url('images/custom-cursor-small4.png') 8 8, pointer;
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999999;
+  pointer-events: none;
+
+  width: 65px;
+  height: 42px;
+
+  transform: translate3d(-100px, -100px, 0);
+  will-change: transform;
+
+  transition:
+    width 0.18s ease,
+    height 0.18s ease,
+    opacity 0.18s ease;
 }
 
+.cursor-arrow {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 0;
+  height: 0;
+
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 18px solid #FECF29;
+
+  transform: rotate(-38deg);
+  transform-origin: center;
+}
+
+.cursor-label {
+  position: absolute;
+  top: 17px;
+  left: 12px;
+
+  min-width: 44px;
+  height: 18px;
+
+  padding: 0 5px;
+
+  background: #FECF29;
+  color: #000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: "Times New Roman", serif;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 400;
+
+  white-space: nowrap;
+}
+
+.custom-cursor.is-hovering {
+  transform-origin: top left;
+}
+
+.custom-cursor.is-hovering .cursor-label {
+  background: #FECF29;
+  color: #000;
+}
+
+.custom-cursor.is-hovering .cursor-arrow {
+  border-bottom-color: #FECF29;
+}
+
+
+.custom-cursor.is-hidden {
+  opacity: 0;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .custom-cursor {
+    display: none;
+  }
+
+  html,
+  body,
+  a,
+  button,
+  input,
+  textarea,
+  select,
+  [role="button"],
+  .clickable {
+    cursor: auto !important;
+  }
+}
 
   </style>
 
@@ -1155,7 +1257,14 @@ a, button, .clickable {
       <div class="bg-glyph g6"><div class="ring"></div></div>
     </div>
   </div>
+  
+<!-- Custom Cursor -->
+<div class="custom-cursor" id="customCursor">
+  <div class="cursor-arrow"></div>
+  <div class="cursor-label">YOU</div>
+</div>
 
+  
   <!-- ====================== NAVIGATION ====================== -->
   <header class="nav" id="nav">
     <div class="nav__inner">
@@ -1805,5 +1914,71 @@ a, button, .clickable {
 
   document.addEventListener('DOMContentLoaded', init);
   </script>
+
+  
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const cursor = document.getElementById("customCursor");
+
+  if (!cursor) return;
+
+  let mouseX = 0;
+  let mouseY = 0;
+
+  let currentX = 0;
+  let currentY = 0;
+
+  const speed = 0.22;
+
+  document.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+
+    cursor.classList.remove("is-hidden");
+  });
+
+  function animateCursor() {
+    currentX += (mouseX - currentX) * speed;
+    currentY += (mouseY - currentY) * speed;
+
+    cursor.style.transform =
+      `translate3d(${currentX}px, ${currentY}px, 0)`;
+
+    requestAnimationFrame(animateCursor);
+  }
+
+  animateCursor();
+
+  // Detect clickable elements
+  document.addEventListener("mouseover", (e) => {
+    const clickable = e.target.closest(
+      'a, button, input, textarea, select, [role="button"], .clickable'
+    );
+
+    if (clickable) {
+      cursor.classList.add("is-hovering");
+    }
+  });
+
+  document.addEventListener("mouseout", (e) => {
+    const clickable = e.target.closest(
+      'a, button, input, textarea, select, [role="button"], .clickable'
+    );
+
+    if (clickable) {
+      cursor.classList.remove("is-hovering");
+    }
+  });
+
+  // Hide when mouse leaves the browser window
+  document.addEventListener("mouseleave", () => {
+    cursor.classList.add("is-hidden");
+  });
+
+  document.addEventListener("mouseenter", () => {
+    cursor.classList.remove("is-hidden");
+  });
+});
+</script>
 </body>
 </html>
